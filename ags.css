@@ -1,0 +1,1251 @@
+/* ══════════════════════════════════════════════════════════════════════
+   AGS — visual system v3
+   ART DIRECTION PASS
+
+   The architecture did not change. The light did.
+
+   Every room now has its own light source, its own air and its own
+   depth. Objects exist at measured distances from the reader. The Spark
+   is not an element on the page — it is the behaviour of light in it.
+
+     1  tokens          2  the Spark        3  the thread
+     4  masthead        5  rooms & light    6  type
+     7  depth & objects 8  threshold        9  acts
+    10  horizon        11  method          12  doors
+    13  exhibits       14  chronology      15  invitation
+    16  world pages    17  manifesto       18  footer
+    19  motion         20  tablet & phone  21  reduced motion
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ══ 1 · TOKENS ═══════════════════════════════════════════════════════ */
+:root{
+  --warm-white:#F7F4ED;
+  --paper:#EFEADD;
+  --stone:#DCD5C6;
+  --wood:#9C7B52;
+  --wood-ink:#7A5C36;
+
+  --gold:#8A6A25;
+  --gold-lg:#A97F2C;
+  --gold-soft:#D8B268;
+  --chispa:#FFD9A3;
+  --core:#FFF7EA;
+
+  --charcoal:#191410;      /* velvet, not steel */
+  --umber:#120E09;          /* the warm dark of a lamplit room */
+  --black:#090705;         /* warm near-black: brass, wood, paper */
+  --mist:#3C4E5C;
+  --forest:#22443A;
+
+  --ink:#14202A;
+  --ink-quiet:#4C5C68;
+
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",monospace;
+
+  /* nothing overshoots. everything arrives. */
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-soft:cubic-bezier(.22,.61,.36,1);
+  --slow:1350ms;
+  --slower:2200ms;
+
+  --shell:1520px;
+  --gutter:clamp(22px,6.4vw,124px);
+  --room:clamp(116px,19vh,268px);        /* more air than before: rooms breathe */
+
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+html:focus-within{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--warm-white);color:var(--ink);
+  font-family:var(--body);font-size:clamp(16px,1.02vw,18px);line-height:1.74;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+img,svg,canvas{display:block;max-width:100%}
+img{height:auto}
+a{color:inherit}
+h1,h2,h3,h4,p,figure,figcaption,blockquote,ul,ol,dl,dd{margin:0}
+ul,ol{padding:0;list-style:none}
+button{font:inherit;color:inherit}
+::selection{background:var(--chispa);color:var(--black)}
+
+.skip{
+  position:absolute;left:-9999px;top:0;z-index:200;background:var(--black);color:var(--core);
+  padding:.9rem 1.4rem;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+}
+.skip:focus{left:1rem;top:1rem}
+:focus-visible{outline:2px solid var(--gold);outline-offset:6px;border-radius:1px}
+.room-dark :focus-visible,.night :focus-visible,.threshold :focus-visible,
+.light-void :focus-visible,.light-theatre :focus-visible{outline-color:var(--chispa)}
+
+/* ══ 2 · THE SPARK ════════════════════════════════════════════════════
+   A filament of warm light, drawn on a canvas in additive blend so that
+   it behaves like light rather than like an object. The DOM holds only
+   the word it sometimes carries. Enabled on precise pointers, with
+   motion allowed, and surrendered the instant a hand reaches for the
+   keyboard.                                                           */
+#spark{
+  position:fixed;inset:0;z-index:150;pointer-events:none;
+  mix-blend-mode:screen;opacity:0;transition:opacity 1400ms var(--ease);
+}
+.spark-on #spark{opacity:1}
+.spark-on,.spark-on a,.spark-on button,.spark-on [role="button"]{cursor:none}
+.spark-word{
+  position:fixed;left:0;top:0;z-index:151;pointer-events:none;white-space:nowrap;
+  font-family:var(--mono);font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--chispa);opacity:0;
+  transition:opacity 900ms var(--ease);
+  will-change:transform,opacity;
+}
+.spark-word.is-shown{opacity:.55}
+
+/* touch: the light answers a finger once, and leaves */
+.tap-spark{
+  position:fixed;z-index:149;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;
+  pointer-events:none;mix-blend-mode:screen;
+  background:radial-gradient(circle,var(--core) 0%,var(--chispa) 36%,rgba(255,217,163,0) 70%);
+  animation:tapSpark 900ms var(--ease) forwards;
+}
+@keyframes tapSpark{
+  0%{transform:scale(.35);opacity:.95}
+  100%{transform:scale(4);opacity:0}
+}
+
+/* ══ 3 · THE THREAD — the path already walked ═════════════════════════ */
+.thread{
+  position:fixed;left:calc(var(--gutter) / 2);top:0;bottom:0;width:1px;z-index:60;pointer-events:none;
+  background:linear-gradient(to bottom,transparent,rgba(140,120,88,.2) 10%,rgba(140,120,88,.2) 90%,transparent);
+}
+.thread-trace{
+  position:absolute;left:0;top:0;width:1px;height:0;
+  background:linear-gradient(to bottom,rgba(216,178,104,.04),rgba(216,178,104,.5));
+}
+.thread-node{
+  position:absolute;left:-2.5px;top:0;width:6px;height:6px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,247,234,.85) 0%,rgba(216,178,104,.62) 42%,rgba(216,178,104,0) 76%);
+  will-change:transform;
+}
+@media (max-width:900px){.thread{display:none}}
+
+/* ══ 4 · MASTHEAD ═════════════════════════════════════════════════════ */
+.masthead{
+  position:fixed;inset:0 0 auto;z-index:70;
+  display:flex;align-items:center;gap:clamp(1rem,2vw,2rem);
+  padding:clamp(16px,2.2vw,30px) var(--gutter);
+  padding-top:max(clamp(16px,2.2vw,30px),env(safe-area-inset-top));
+  transition:padding 900ms var(--ease),color 1200ms var(--ease);
+}
+.masthead::before{
+  content:"";position:absolute;inset:0;z-index:-1;opacity:0;
+  background:linear-gradient(to bottom,rgba(247,244,237,.92),rgba(247,244,237,.62) 58%,transparent);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:opacity 1000ms var(--ease);
+}
+.masthead.is-settled::before{opacity:1}
+.masthead.is-settled{padding-block:clamp(12px,1.4vw,18px)}
+.masthead.on-dark{color:var(--paper)}
+.masthead.on-dark::before{background:linear-gradient(to bottom,rgba(9,7,5,.88),rgba(9,7,5,.5) 58%,transparent)}
+
+.wordmark{
+  display:inline-flex;align-items:center;gap:.6rem;text-decoration:none;margin-right:auto;
+  font-family:var(--display);font-weight:400;font-size:clamp(18px,1.5vw,23px);
+  letter-spacing:.26em;font-variation-settings:"opsz" 144,"SOFT" 0,"WONK" 0;
+}
+.wordmark-spark{
+  width:6px;height:6px;border-radius:50%;flex:none;
+  background:radial-gradient(circle,var(--core) 0%,var(--gold-soft) 40%,rgba(216,178,104,0) 78%);
+  box-shadow:0 0 12px 3px rgba(216,178,104,.45);
+  animation:emberPulse 9s var(--ease-soft) infinite;
+}
+@keyframes emberPulse{0%,100%{opacity:.82}50%{opacity:1}}
+.nav{display:flex;align-items:center;gap:clamp(1.2rem,2.2vw,2.5rem)}
+.nav-link{
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  text-decoration:none;opacity:.62;transition:opacity 700ms var(--ease);
+}
+.nav-link:hover,.nav-link:focus-visible{opacity:1}
+.nav-link[aria-current="page"]{opacity:1;color:var(--gold)}
+.on-dark .nav-link[aria-current="page"]{color:var(--chispa)}
+.nav-toggle{display:none;background:none;border:0;padding:.4rem 0;cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase}
+.utils{display:flex;align-items:center;gap:clamp(.8rem,1.6vw,1.6rem)}
+.util{
+  background:none;border:0;padding:.35rem .1rem;cursor:pointer;text-decoration:none;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+  opacity:.9;transition:opacity 600ms var(--ease);
+}
+.util:hover,.util:focus-visible{opacity:1}
+.util[aria-pressed="true"]{color:var(--gold)}
+.on-dark .util[aria-pressed="true"]{color:var(--chispa)}
+.langs{display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em}
+.lang{text-decoration:none;opacity:.9;text-transform:uppercase}
+.lang[aria-current="true"]{color:var(--gold)}
+.on-dark .lang[aria-current="true"]{color:var(--chispa)}
+.lang[aria-disabled="true"]{opacity:.42;pointer-events:none}
+.lang-sep{opacity:.25}
+
+/* ══ 5 · ROOMS & LIGHT ════════════════════════════════════════════════
+   Light replaces decoration. Each key is a real lighting condition:
+   direction, temperature, fall-off, and how much air is in the room.  */
+.shell{max-width:var(--shell);margin-inline:auto;padding-inline:var(--gutter)}
+.room{padding-block:var(--room)}
+.room-tight{padding-block:clamp(80px,11vh,150px)}
+.lit{position:relative;isolation:isolate;overflow:hidden}
+.lit > *{position:relative;z-index:2}
+/* the light itself: one layer, breathing almost imperceptibly */
+.lit::before{
+  content:"";position:absolute;inset:-10%;z-index:0;pointer-events:none;
+  animation:breathe 54s var(--ease-soft) infinite;
+}
+/* the air: grain, so that nothing is ever perfectly clean */
+.lit::after{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:var(--grain);opacity:.045;mix-blend-mode:overlay;
+}
+@keyframes breathe{0%,100%{opacity:.9;transform:scale(1)}50%{opacity:1;transform:scale(1.025)}}
+
+/* morning — the threshold: soft, low, from the left */
+.light-morning{background:var(--umber);color:var(--paper)}
+.light-morning::before{
+  background:
+    radial-gradient(52% 46% at 16% 2%,rgba(255,233,196,.44),rgba(255,216,156,.13) 44%,transparent 76%),
+    radial-gradient(40% 34% at 76% 14%,rgba(255,224,172,.2),transparent 68%),
+    linear-gradient(160deg,rgba(255,226,178,.16) 0%,transparent 46%);
+}
+/* sanctum — the manifesto: cream walls, soft daylight, one gold spark.
+   Sacred, not sombre: the law is read in the light it exists to defend. */
+.light-sanctum{background:linear-gradient(to bottom,#FCF9F3,#F6F2E8 62%,#F1EDE2);color:var(--ink)}
+.light-sanctum::before{
+  background:
+    radial-gradient(64% 34% at 50% -8%,rgba(255,255,255,.85),rgba(255,250,240,.2) 52%,transparent 78%),
+    radial-gradient(30% 26% at 22% 40%,rgba(255,220,170,.09),transparent 70%),
+    linear-gradient(to bottom,transparent 58%,rgba(216,205,182,.3) 100%);
+}
+.light-sanctum::after{opacity:.03}
+.light-sanctum .creed-open,.light-sanctum .mantra,
+.light-sanctum .declaration,.light-sanctum .statement{color:var(--ink)}
+.light-sanctum .law{border-left-color:var(--gold)}
+.light-sanctum .law .declaration{color:var(--ink)}
+.light-sanctum .law-note,.light-sanctum .lede,.light-sanctum .quiet{color:var(--ink-quiet)}
+.light-sanctum .eyebrow,.light-sanctum .label{color:var(--ink-quiet);opacity:.92}
+.light-sanctum .handle,.light-sanctum .gold{color:var(--gold)}
+.light-sanctum .contact{color:var(--ink);border-bottom-color:rgba(169,127,44,.42)}
+.light-sanctum .rule{background:linear-gradient(to right,rgba(60,78,92,.22),rgba(60,78,92,.04) 70%,transparent)}
+.light-sanctum :focus-visible{outline-color:var(--gold)}
+/* gallery — daylight on a warm wall, from above */
+.light-gallery{background:linear-gradient(to bottom,#FBF8F3,#F4F0E7)}
+.light-gallery::before{
+  background:
+    radial-gradient(60% 30% at 50% -6%,rgba(255,255,255,.7),transparent 70%),
+    linear-gradient(to bottom,rgba(220,213,198,0) 62%,rgba(220,213,198,.35) 100%);
+}
+/* museum — architectural, even, cool, with a floor */
+.light-museum{background:linear-gradient(to bottom,#F4F1E9,#EAE5D8)}
+.light-museum::before{
+  background:
+    linear-gradient(to bottom,rgba(255,255,255,.75) 0%,rgba(255,255,255,0) 34%),
+    radial-gradient(80% 44% at 50% 100%,rgba(60,78,92,.1),transparent 72%);
+}
+/* afternoon — long, low, warm, from the right: the institution */
+.light-afternoon{background:linear-gradient(to bottom,#F7F4EC,#F1EDE2)}
+.light-afternoon::before{
+  background:
+    radial-gradient(52% 46% at 100% 18%,rgba(255,214,166,.13),rgba(255,214,166,.03) 48%,transparent 76%),
+    linear-gradient(255deg,rgba(120,110,96,.07),transparent 54%);
+}
+/* theatre — a warm cone from above, everything else velvet */
+.light-theatre{background:var(--charcoal);color:var(--paper)}
+.light-theatre::before{
+  background:
+    radial-gradient(34% 62% at 50% -12%,rgba(255,214,150,.24),rgba(255,196,120,.06) 44%,transparent 72%),
+    radial-gradient(120% 90% at 50% 120%,rgba(9,7,5,.72),transparent 66%);
+}
+.night{background:#0A0806;color:var(--paper)}
+
+/* kept so the page templates keep working */
+.room-dark{background:#0A0806;color:var(--paper);position:relative;isolation:isolate}
+.room-warm{background:linear-gradient(to bottom,#FAF7F1,#F2EDE1)}
+.room-stone{background:linear-gradient(to bottom,#F4F1E9,#EAE5D8)}
+
+.measure{max-width:30em}
+.measure-wide{max-width:40em}
+
+/* ══ 6 · TYPE — rhythm only. The faces and the scale did not change. ══ */
+.eyebrow{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--ink-quiet);opacity:.92;margin-bottom:clamp(2.2rem,4vw,3.6rem);
+}
+.light-morning .eyebrow,.light-void .eyebrow,.light-theatre .eyebrow,
+.room-dark .eyebrow,.night .eyebrow{color:rgba(239,234,221,.6);opacity:1}
+.overture{
+  font-family:var(--display);font-weight:300;
+  font-variation-settings:"opsz" 144,"SOFT" 30,"WONK" 1;
+  font-size:clamp(38px,7.2vw,112px);line-height:1.02;letter-spacing:-.032em;text-wrap:balance;
+}
+.declaration{
+  font-family:var(--display);font-weight:300;
+  font-variation-settings:"opsz" 144,"SOFT" 66,"WONK" 1;
+  font-size:clamp(27px,3.9vw,60px);line-height:1.16;letter-spacing:-.024em;text-wrap:pretty;
+}
+.statement{
+  font-family:var(--display);font-weight:300;
+  font-variation-settings:"opsz" 120,"SOFT" 44,"WONK" 1;
+  font-size:clamp(23px,2.9vw,42px);line-height:1.22;letter-spacing:-.018em;text-wrap:pretty;
+}
+.title-sm{
+  font-family:var(--display);font-weight:400;
+  font-variation-settings:"opsz" 72,"SOFT" 40,"WONK" 0;
+  font-size:clamp(19px,1.9vw,27px);line-height:1.26;letter-spacing:-.012em;
+}
+.lede{font-size:clamp(16.5px,1.28vw,20px);line-height:1.68;color:var(--ink-quiet)}
+.light-morning .lede,.light-void .lede,.light-theatre .lede,
+.room-dark .lede,.night .lede{color:rgba(239,234,221,.66)}
+.quiet{color:var(--ink-quiet)}
+.light-theatre .quiet,.room-dark .quiet,.night .quiet{color:rgba(239,234,221,.6)}
+.turn{display:block;margin-top:.5em;opacity:.55}
+.label{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-quiet)}
+.light-morning .label,.light-void .label,.light-theatre .label,
+.room-dark .label,.night .label{color:rgba(239,234,221,.6)}
+.rule{height:1px;border:0;margin:0;background:linear-gradient(to right,rgba(60,78,92,.22),rgba(60,78,92,.04) 70%,transparent)}
+.light-void .rule,.light-theatre .rule,.room-dark .rule,.night .rule{
+  background:linear-gradient(to right,rgba(239,234,221,.2),rgba(239,234,221,.03) 70%,transparent)}
+.gold{color:var(--gold)}
+.light-void .gold,.light-theatre .gold,.room-dark .gold,.night .gold{color:var(--chispa)}
+
+.handle{
+  display:inline-flex;align-items:center;gap:.8rem;text-decoration:none;
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);transition:gap 900ms var(--ease)}
+.handle::after{content:"";width:28px;height:1px;background:currentColor;opacity:.6;transition:width 1100ms var(--ease)}
+.handle:hover,.handle:focus-visible{gap:1.1rem}
+.handle:hover::after,.handle:focus-visible::after{width:54px}
+.light-void .handle,.light-theatre .handle,.room-dark .handle,.night .handle{color:var(--chispa)}
+.contact{
+  display:inline-block;text-decoration:none;
+  font-family:var(--display);font-weight:400;font-variation-settings:"opsz" 96,"SOFT" 30,"WONK" 0;
+  font-size:clamp(19px,2.2vw,31px);letter-spacing:-.014em;
+  border-bottom:1px solid rgba(169,127,44,.4);padding-bottom:.2em;
+  transition:color 800ms var(--ease),border-color 800ms var(--ease);
+}
+.contact:hover,.contact:focus-visible{color:var(--gold)}
+.light-theatre .contact,.light-void .contact,.room-dark .contact,.night .contact{
+  border-bottom-color:rgba(255,217,163,.36)}
+.light-theatre .contact:hover,.room-dark .contact:hover,.night .contact:hover{
+  color:var(--chispa);border-bottom-color:var(--chispa)}
+
+/* ══ 7 · DEPTH & OBJECTS ══════════════════════════════════════════════
+   JS writes --vy per scene (its own progress, about -1 … 1). Planes and
+   objects declare how far away they sit with --d. Foreground objects are
+   allowed in front of the type, because in a real room things are.    */
+.scene{position:relative;overflow:hidden;isolation:isolate}
+.plane{position:absolute;inset:-8% -4%;will-change:transform}
+.plane img{width:100%;height:100%;object-fit:cover}
+.plane-far{transform:translate3d(0,calc(var(--vy,0) * var(--d,-58) * 1px),0) scale(1.09);filter:saturate(1.04) brightness(1.15) contrast(1.01)}
+.plane-mid{transform:translate3d(0,calc(var(--vy,0) * var(--d,-26) * 1px),0) scale(1.03)}
+.plane-near{transform:translate3d(0,calc(var(--vy,0) * var(--d,14) * 1px),0)}
+.plane-lamp{
+  -webkit-mask-image:radial-gradient(56% 50% at var(--lx,62%) var(--ly,58%),#000 0%,rgba(0,0,0,.85) 40%,transparent 76%);
+  mask-image:radial-gradient(56% 50% at var(--lx,62%) var(--ly,58%),#000 0%,rgba(0,0,0,.85) 40%,transparent 76%);
+}
+/* the beam, and the haze it travels through */
+.volumetric{
+  position:absolute;inset:-20%;pointer-events:none;
+  background:radial-gradient(52% 46% at var(--lx,62%) var(--ly,58%),rgba(255,221,170,.30),rgba(255,217,163,.08) 46%,transparent 76%);
+  filter:blur(24px);
+  transform:translate3d(0,calc(var(--vy,0) * -30px),0);
+}
+.beam{
+  position:absolute;inset:-30% -10%;pointer-events:none;mix-blend-mode:screen;opacity:.5;
+  background:linear-gradient(163deg,rgba(255,232,190,.34) 0%,rgba(255,226,178,.12) 24%,transparent 52%);
+  filter:blur(8px);
+  transform:translate3d(0,calc(var(--vy,0) * -16px),0);
+  animation:breathe 46s var(--ease-soft) infinite;
+}
+.scrim{position:absolute;inset:0;pointer-events:none}
+.scrim-b{background:linear-gradient(to top,rgba(14,10,7,.7) 0%,rgba(14,10,7,.24) 26%,rgba(14,10,7,0) 50%,rgba(14,10,7,.06) 100%)}
+.scrim-l{background:linear-gradient(100deg,rgba(14,10,7,.72) 0%,rgba(14,10,7,.28) 32%,rgba(14,10,7,0) 62%)}
+.scrim-r{background:linear-gradient(260deg,rgba(14,10,7,.7) 0%,rgba(14,10,7,.26) 32%,rgba(14,10,7,0) 62%)}
+.motes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.55;mix-blend-mode:screen}
+
+/* additive light: the Spark's own residue, left in a room */
+.residue{
+  position:absolute;pointer-events:none;mix-blend-mode:screen;
+  transform:translate3d(0,calc(var(--vy,0) * var(--d,-20) * 1px),0);
+  animation:breathe 62s var(--ease-soft) infinite;
+}
+.residue img{width:100%;height:auto;object-fit:contain}
+
+/* an object in the room — it has distance, weight and a shadow */
+.obj{
+  position:absolute;pointer-events:none;z-index:3;
+  width:var(--w,20%);left:var(--x,50%);top:var(--y,50%);
+  transform:
+    translate3d(-50%,calc(-50% + var(--vy,0) * var(--d,-40) * 1px),0)
+    rotate(var(--rot,0deg));
+  will-change:transform;
+}
+.obj img{
+  width:100%;height:auto;
+  filter:drop-shadow(0 26px 36px rgba(0,0,0,.62)) brightness(var(--b,.86)) saturate(.94);
+  opacity:var(--o,1);
+}
+.obj-front{z-index:6}                  /* in front of the type, as in a real room */
+.obj-drift{animation:objDrift var(--dur,34s) var(--ease-soft) infinite}
+@keyframes objDrift{0%,100%{translate:0 0}50%{translate:0 -.7%}}
+
+/* an image that stops being a rectangle */
+.dissolve-b{
+  -webkit-mask-image:linear-gradient(to top,transparent 0%,#000 26%);
+  mask-image:linear-gradient(to top,transparent 0%,#000 26%);
+}
+.dissolve-l{
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 34%);
+  mask-image:linear-gradient(to right,transparent 0%,#000 34%);
+}
+.dissolve-edges{
+  -webkit-mask-image:radial-gradient(78% 76% at 50% 46%,#000 38%,transparent 100%);
+  mask-image:radial-gradient(78% 76% at 50% 46%,#000 38%,transparent 100%);
+}
+
+/* Each world is lit by a different lamp and graded like a different film.
+   Cover the titles: the light alone should say which room you are in.  */
+/* Entertainment — cinematic golden sunset, emotional glow */
+[data-key="wonder"] .plane-far{filter:saturate(1.16) brightness(1.12) contrast(1.04) sepia(.06)}
+[data-key="wonder"] .plane-near{filter:saturate(1.18) brightness(1.16)}
+/* Education — bright laboratory, clean discovery, scientific optimism */
+[data-key="warmth"] .plane-far{filter:saturate(1.02) brightness(1.26) contrast(.96)}
+[data-key="warmth"] .plane-near{filter:saturate(1.04) brightness(1.3) contrast(.95)}
+/* Culture — warm theatre: velvet, wood, one stage light */
+[data-key="civilisation"] .plane-far{filter:saturate(1.08) brightness(1.04) contrast(1.08) sepia(.04)}
+[data-key="civilisation"] .plane-near{filter:saturate(1.1) brightness(1.08) contrast(1.06)}
+/* Innovation — a working studio: large windows, soft even daylight */
+[data-key="precision"] .plane-far{filter:saturate(.94) brightness(1.24) contrast(.92)}
+[data-key="precision"] .plane-near{filter:saturate(.96) brightness(1.28) contrast(.9)}
+/* Institution — white architecture, museum daylight, the brightest room */
+[data-key="legacy"] .plane-far{filter:saturate(.9) brightness(1.32) contrast(.9)}
+[data-key="legacy"] .plane-near{filter:saturate(.92) brightness(1.36) contrast(.88)}
+
+/* ══ 8 · THE THRESHOLD ════════════════════════════════════════════════ */
+.threshold{min-height:100svh;display:flex;align-items:flex-end;background:var(--umber);color:var(--paper)}
+.threshold-copy{position:relative;z-index:4;width:100%;padding-bottom:clamp(104px,16vh,182px);padding-top:38vh}
+.threshold-copy .overture{color:var(--paper);text-shadow:0 0 62px rgba(9,7,5,.5)}
+.wall-label{
+  position:absolute;z-index:5;left:var(--gutter);bottom:clamp(34px,5.6vh,60px);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(239,234,221,.6);max-width:22em;line-height:2;
+}
+.enter-cue{
+  position:absolute;z-index:5;right:var(--gutter);bottom:clamp(34px,5.6vh,60px);
+  display:flex;align-items:center;gap:.7rem;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;
+  color:rgba(239,234,221,.52);
+}
+.enter-cue::after{content:"";width:1px;height:36px;
+  background:linear-gradient(to bottom,rgba(255,217,163,.65),transparent);
+  animation:fall 5.4s var(--ease-soft) infinite}
+@keyframes fall{0%{opacity:0;transform:scaleY(.15)}44%{opacity:1}100%{opacity:0;transform:scaleY(1)}}
+
+/* ══ 9 · WHY — three acts, three states of light ══════════════════════ */
+.acts{display:grid}
+.act{position:relative;padding-block:clamp(4rem,9vh,8.5rem);border-top:1px solid rgba(60,78,92,.12)}
+.act:first-child{border-top:0}
+.act-i{background:linear-gradient(105deg,rgba(220,213,198,.24),transparent 60%)}
+.act-ii{background:linear-gradient(105deg,rgba(216,178,104,.11),transparent 56%)}
+.act-iii{background:linear-gradient(105deg,rgba(216,178,104,.22),transparent 52%)}
+.act-line{position:relative;z-index:2;max-width:24em}
+.act-mark{
+  display:block;width:28px;height:1px;margin-bottom:clamp(1.6rem,2.6vw,2.4rem);
+  background:var(--gold-soft);transform:scaleX(0);transform-origin:left;
+  transition:transform var(--slower) var(--ease);
+}
+.is-in .act-mark{transform:scaleX(1)}
+
+/* ══ 10 · THE HORIZON ═════════════════════════════════════════════════ */
+.ladder{display:grid;gap:clamp(1.2rem,2.4vw,2.1rem);margin-top:clamp(2.6rem,5vw,4.2rem)}
+.rung{display:grid;grid-template-columns:minmax(0,1fr);gap:.7rem}
+.rung-rule{
+  height:1px;background:linear-gradient(to right,rgba(216,178,104,.6),rgba(216,178,104,.05));
+  width:calc(14% + var(--i,0) * 21%);max-width:100%;
+  transform:scaleX(0);transform-origin:left;
+  transition:transform var(--slower) var(--ease);transition-delay:calc(var(--i,0) * 150ms);
+}
+.is-in .rung-rule{transform:scaleX(1)}
+.rung-step{
+  font-family:var(--display);font-weight:300;
+  font-variation-settings:"opsz" 144,"SOFT" 40,"WONK" 0;
+  letter-spacing:-.02em;line-height:1.06;
+  font-size:calc(clamp(20px,2.2vw,30px) + var(--i,0) * clamp(4px,.85vw,13px));
+}
+.rung:last-child .rung-step{color:var(--gold-lg)}
+
+/* ══ 11 · THE METHOD ══════════════════════════════════════════════════ */
+.method{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);margin-top:clamp(3.4rem,7vw,5.6rem)}
+.stage{position:relative;padding-top:3.4rem}
+.stage::before{
+  content:"";position:absolute;top:0;left:-50%;width:100%;height:1px;
+  transform:scaleX(0);transform-origin:left;
+  transition:transform 1400ms var(--ease);transition-delay:calc(var(--i,0) * 240ms);
+}
+.stage:first-child::before{display:none}
+.stage[data-phase="before"]::before,.stage[data-phase="turn"]::before{
+  background:repeating-linear-gradient(to right,rgba(60,78,92,.4) 0 2px,transparent 2px 7px)}
+.stage[data-phase="after"]::before{
+  background:linear-gradient(to right,rgba(216,178,104,.85),rgba(216,178,104,.55));height:1.5px}
+.method.is-in .stage::before{transform:scaleX(1)}
+.stage-node{
+  position:absolute;top:-3.5px;left:0;width:8px;height:8px;border-radius:50%;background:var(--stone);
+  transition:background 1200ms var(--ease),box-shadow 1200ms var(--ease);
+  transition-delay:calc(var(--i,0) * 240ms);
+}
+.method.is-in .stage-node{background:var(--gold-soft);box-shadow:0 0 12px 3px rgba(216,178,104,.3)}
+.stage[data-phase="turn"] .stage-node{width:14px;height:14px;top:-6.5px;left:-3px}
+.method.is-in .stage[data-phase="turn"] .stage-node{
+  background:radial-gradient(circle,var(--core),var(--chispa) 44%,rgba(216,178,104,.18) 74%);
+  box-shadow:0 0 30px 9px rgba(216,178,104,.34);
+}
+.stage-name{
+  display:block;font-family:var(--display);font-weight:400;
+  font-variation-settings:"opsz" 72,"SOFT" 40,"WONK" 0;
+  font-size:clamp(15px,1.28vw,20px);line-height:1.2;letter-spacing:-.01em;
+}
+.stage-gloss{display:block;margin-top:.55rem;padding-right:1.2rem;
+  font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-quiet);line-height:1.8}
+.stage[data-phase="turn"] .stage-name{color:var(--gold);font-size:clamp(17px,1.5vw,24px)}
+
+/* ══ 12 · THE FIVE DOORS ══════════════════════════════════════════════
+   One house, five rooms: wonder, warmth, civilisation, precision,
+   legacy. Each answers the light in its own way.                      */
+.doors{border-top:1px solid rgba(60,78,92,.12)}
+.door{
+  position:relative;display:flex;text-decoration:none;overflow:hidden;isolation:isolate;
+  border-bottom:1px solid rgba(60,78,92,.12);background:var(--black);color:var(--paper);
+  min-height:clamp(340px,54vh,600px);
+}
+.door-plate{position:absolute;inset:-5%;z-index:0}
+.door-plate img{width:100%;height:100%;object-fit:cover;
+  transition:transform 3200ms var(--ease),opacity 1800ms var(--ease),filter 2000ms var(--ease)}
+.door-copy{
+  position:relative;z-index:3;width:100%;align-self:flex-end;
+  max-width:calc(var(--shell) + var(--gutter) * 2);margin-inline:auto;
+  padding:clamp(2.2rem,4.4vw,3.8rem) var(--gutter);
+}
+.door-name{
+  display:block;font-family:var(--display);font-weight:300;
+  font-variation-settings:"opsz" 144,"SOFT" 20,"WONK" 0;
+  font-size:clamp(28px,3.9vw,58px);line-height:1;letter-spacing:-.022em;
+}
+.door-promise{display:block;margin-top:.9rem;max-width:22em;color:rgba(239,234,221,.72);
+  font-size:clamp(14px,1.05vw,17px)}
+.door-handle{
+  display:inline-flex;align-items:center;gap:.7rem;margin-top:1.5rem;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--chispa);opacity:.7;transition:opacity 900ms var(--ease),gap 900ms var(--ease)}
+.door-handle::after{content:"";width:24px;height:1px;background:currentColor;transition:width 1100ms var(--ease)}
+.door:hover .door-handle,.door:focus-visible .door-handle,.door.is-touched .door-handle{opacity:1;gap:1rem}
+.door:hover .door-handle::after,.door:focus-visible .door-handle::after,
+.door.is-touched .door-handle::after{width:50px}
+
+/* wonder — the light in the room grows warmer as you approach */
+.door-entertainment .door-plate img{opacity:1}
+.door-entertainment .scrim{background:linear-gradient(96deg,rgba(9,7,5,.92) 0%,rgba(9,7,5,.46) 46%,rgba(24,12,4,.14) 84%)}
+.door-entertainment:hover .door-plate img,.door-entertainment.is-touched .door-plate img{
+  opacity:.95;transform:scale(1.05);filter:saturate(1.05) brightness(1.04)}
+
+/* human warmth — a stage light crosses the room */
+.door-education .door-plate img{opacity:1}
+.door-education .scrim{background:linear-gradient(to top,rgba(9,7,5,.93),rgba(9,7,5,.4) 42%,transparent 80%)}
+.door-education::after{
+  content:"";position:absolute;inset:-10%;z-index:2;pointer-events:none;opacity:0;mix-blend-mode:screen;
+  background:linear-gradient(74deg,transparent 32%,rgba(255,232,196,.14) 50%,transparent 68%);
+  transform:translateX(-22%);transition:opacity 1400ms var(--ease),transform 3400ms var(--ease)}
+.door-education:hover::after,.door-education.is-touched::after{opacity:1;transform:translateX(22%)}
+
+/* civilisation — the frame widens, the city keeps going */
+.door-culture .door-plate img{opacity:.99}
+.door-culture .scrim{background:linear-gradient(80deg,rgba(9,7,5,.9) 0%,rgba(9,7,5,.6) 42%,rgba(9,7,5,.26) 90%);
+  transition:opacity 2200ms var(--ease)}
+.door-culture:hover .scrim,.door-culture.is-touched .scrim{opacity:.66}
+.door-culture:hover .door-plate img,.door-culture.is-touched .door-plate img{transform:scale(1.03)}
+
+/* precision — a measuring grid, drawn only when looked at */
+.door-innovation .door-plate img{opacity:1}
+.door-innovation .scrim{background:linear-gradient(255deg,rgba(9,7,5,.9) 0%,rgba(9,7,5,.58) 42%,rgba(9,7,5,.2) 86%)}
+.door-innovation::after{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;
+  background-image:linear-gradient(to right,rgba(239,234,221,.13) 1px,transparent 1px),
+                   linear-gradient(to bottom,rgba(239,234,221,.13) 1px,transparent 1px);
+  background-size:clamp(48px,7vw,104px) clamp(48px,7vw,104px);
+  transition:opacity 1600ms var(--ease)}
+.door-innovation:hover::after,.door-innovation.is-touched::after{opacity:1}
+
+/* legacy — one gold rule, laid slowly, like a foundation stone */
+.door-institution .door-plate img{opacity:1}
+.door-institution .scrim{background:radial-gradient(122% 100% at 50% 100%,rgba(9,7,5,.92),rgba(9,7,5,.48) 54%,rgba(9,7,5,.2))}
+.door-institution .door-copy::before{
+  content:"";display:block;width:0;height:1px;margin-bottom:1.5rem;
+  background:linear-gradient(to right,var(--gold-soft),transparent);
+  transition:width 2600ms var(--ease)}
+.door-institution:hover .door-copy::before,.door-institution.is-touched .door-copy::before{width:min(340px,46%)}
+
+/* ══ 13 · EXHIBITS — plates hung on a wall, never pasted onto it ══════ */
+.exhibits{display:grid;gap:clamp(5rem,10vw,10rem)}
+.exhibit{display:grid;gap:clamp(1.6rem,2.8vw,3rem);align-items:end}
+.exhibit-plate{position:relative;overflow:hidden;background:#0C0907;
+  box-shadow:0 30px 70px -40px rgba(20,32,42,.5)}
+.exhibit-plate img{width:100%;object-fit:cover;transition:transform 4000ms var(--ease)}
+.exhibit-plate::after{ /* the plate holds its own light: an inner fall-off */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(88% 82% at 50% 44%,transparent 42%,rgba(9,7,5,.5) 100%)}
+.exhibit:hover .exhibit-plate img{transform:scale(1.025)}
+.exhibit-caption{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;margin-top:1rem}
+.exhibit-body{max-width:26em}
+.exhibit-body .statement{margin:.7rem 0 1.5rem}
+.exhibit-lead{grid-template-columns:minmax(0,1.38fr) minmax(0,1fr)}
+.exhibit-lead .exhibit-plate img{aspect-ratio:16/10}
+.exhibit-pair{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.exhibit-pair .exhibit-plate img{aspect-ratio:4/3}
+
+/* ══ 14 · CHRONOLOGY ══════════════════════════════════════════════════ */
+.chronology{border-top:1px solid rgba(60,78,92,.16);margin-top:clamp(2.6rem,5vw,4.2rem)}
+.era{
+  display:grid;grid-template-columns:11rem minmax(0,1fr);gap:clamp(1rem,3vw,3.4rem);
+  padding-block:clamp(1.9rem,3.6vw,3rem);border-bottom:1px solid rgba(60,78,92,.1);
+}
+.era-when{display:grid;gap:.5rem;align-content:start;padding-top:.5em}
+.era-name{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-quiet)}
+.era-kind{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase}
+.era-kind[data-kind="history"]{color:var(--forest)}
+.era-kind[data-kind="present"]{color:var(--gold)}
+.era-kind[data-kind="horizon"]{color:var(--wood-ink)}
+.era-what{
+  font-family:var(--display);font-weight:300;
+  font-variation-settings:"opsz" 96,"SOFT" 44,"WONK" 0;
+  font-size:clamp(20px,2.1vw,31px);line-height:1.3;letter-spacing:-.016em;text-wrap:pretty;
+}
+.era-note{margin-top:.8rem;font-size:clamp(14px,1vw,16px);line-height:1.66;color:var(--ink-quiet);max-width:34em}
+
+/* ══ 15 · INVITATION ══════════════════════════════════════════════════ */
+.invite{display:grid;gap:clamp(2.4rem,4.4vw,3.6rem);max-width:38em}
+.guests{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:clamp(1.8rem,3vw,3rem)}
+.guest-role{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.7rem}
+.light-theatre .guest-role,.room-dark .guest-role{color:var(--chispa)}
+.guest-note{font-size:15px;line-height:1.64;color:var(--ink-quiet)}
+.light-theatre .guest-note,.room-dark .guest-note{color:rgba(239,234,221,.62)}
+
+/* ══ 16 · WORLD PAGES ═════════════════════════════════════════════════ */
+.disciplines{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  border-top:1px solid rgba(60,78,92,.16)}
+.discipline{padding:clamp(1.3rem,2.4vw,2.1rem) 1.8rem clamp(1.3rem,2.4vw,2.1rem) 0;
+  border-bottom:1px solid rgba(60,78,92,.1)}
+.discipline-name{font-family:var(--display);font-weight:400;font-size:clamp(16.5px,1.4vw,21px);
+  font-variation-settings:"opsz" 72,"SOFT" 40,"WONK" 0;line-height:1.24;letter-spacing:-.01em}
+.discipline-note{margin-top:.55rem;font-size:14px;line-height:1.62;color:var(--ink-quiet)}
+.law{border-left:1px solid rgba(255,217,163,.42);padding-left:clamp(1.4rem,2.8vw,2.4rem);max-width:26em}
+.law .declaration{color:var(--chispa)}
+.law-note{margin-top:1.1rem;color:rgba(239,234,221,.6);font-size:clamp(14.5px,1.02vw,16.5px);max-width:32em}
+.world-jump{display:grid;gap:1rem}
+.world-jump a{
+  font-family:var(--display);font-weight:400;font-variation-settings:"opsz" 96,"SOFT" 40,"WONK" 0;
+  font-size:clamp(19px,2vw,28px);letter-spacing:-.014em;text-decoration:none;
+  opacity:.7;transition:opacity 800ms var(--ease),color 800ms var(--ease)}
+.world-jump a:hover,.world-jump a:focus-visible{opacity:1;color:var(--gold)}
+
+/* the entrance hall: only the Institution gets a plinth */
+.plinth{
+  margin-top:clamp(3rem,6vw,5rem);padding-top:clamp(1.6rem,3vw,2.4rem);
+  border-top:1px solid rgba(169,127,44,.32);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:clamp(1.4rem,3vw,2.6rem);
+}
+.plinth-item .label{margin-bottom:.5rem}
+.plinth-value{font-family:var(--display);font-weight:400;font-size:clamp(16px,1.4vw,20px);
+  font-variation-settings:"opsz" 72,"SOFT" 40,"WONK" 0;line-height:1.32}
+
+/* ══ 17 · MANIFESTO ═══════════════════════════════════════════════════ */
+.creed{display:grid;gap:clamp(3.4rem,7vw,6rem);max-width:26em}
+.creed-open{
+  font-family:var(--display);font-weight:300;font-variation-settings:"opsz" 144,"SOFT" 92,"WONK" 1;
+  font-size:clamp(30px,4.4vw,66px);line-height:1.12;letter-spacing:-.026em;color:var(--core);
+}
+.mantra{
+  font-family:var(--display);font-weight:300;font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1;
+  font-size:clamp(26px,3.9vw,58px);line-height:1.1;letter-spacing:-.026em;color:var(--core);
+}
+
+/* ══ 18 · FOOTER ══════════════════════════════════════════════════════ */
+.foot{background:var(--black);color:var(--paper);position:relative;isolation:isolate}
+.foot::after{content:"";position:absolute;inset:0;z-index:0;background-image:var(--grain);
+  opacity:.05;mix-blend-mode:overlay;pointer-events:none}
+.foot > *{position:relative;z-index:1}
+.foot-mantra{
+  font-family:var(--display);font-weight:300;font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1;
+  font-size:clamp(23px,3.2vw,48px);line-height:1.12;letter-spacing:-.024em;color:var(--core);max-width:20em;
+}
+.foot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:clamp(1.8rem,3vw,3rem);
+  margin-top:clamp(3.4rem,6vw,5.4rem);padding-top:clamp(2.2rem,3vw,3.2rem);border-top:1px solid rgba(239,234,221,.12)}
+.foot-head{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(239,234,221,.6);margin-bottom:1.1rem}
+.foot-list li + li{margin-top:.65rem}
+.foot-link{font-size:14.5px;text-decoration:none;color:rgba(239,234,221,.78);transition:color 700ms var(--ease)}
+.foot-link:hover,.foot-link:focus-visible{color:var(--chispa)}
+.foot-legal{margin-top:clamp(2.4rem,4.6vw,3.8rem);display:flex;flex-wrap:wrap;gap:.5rem 1.8rem;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:rgba(239,234,221,.5)}
+.foot-legal a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(239,234,221,.18)}
+
+/* ══ 19 · MOTION — arriving, never announcing ═════════════════════════ */
+.rise{opacity:0;transform:translate3d(0,30px,0);
+  transition:opacity var(--slow) var(--ease),transform var(--slow) var(--ease);
+  transition-delay:var(--d0,0ms);will-change:opacity,transform}
+.rise.is-in{opacity:1;transform:none}
+.no-js .rise{opacity:1;transform:none}
+.no-js .act-mark,.no-js .rung-rule,.no-js .stage::before{transform:none}
+.no-js .stage-node{background:var(--gold-soft)}
+
+/* ══ 20 · TABLET & PHONE ══════════════════════════════════════════════ */
+@media (max-width:1180px){
+  .exhibit-lead,.exhibit-pair{grid-template-columns:minmax(0,1fr)}
+  .exhibit-pair .exhibit-plate img{aspect-ratio:16/10}
+}
+@media (max-width:900px){
+  .method{grid-auto-flow:row;grid-auto-columns:auto;margin-left:.5rem}
+  .stage{padding:0 0 clamp(1.8rem,4vh,2.6rem) 2.3rem}
+  .stage::before{top:0;left:0;width:1px;height:100%;transform:scaleY(0);transform-origin:top}
+  .stage[data-phase="before"]::before,.stage[data-phase="turn"]::before{
+    background:repeating-linear-gradient(to bottom,rgba(60,78,92,.4) 0 2px,transparent 2px 7px)}
+  .stage[data-phase="after"]::before{width:1.5px;
+    background:linear-gradient(to bottom,rgba(216,178,104,.85),rgba(216,178,104,.5))}
+  .method.is-in .stage::before{transform:scaleY(1)}
+  .stage-node{top:2px;left:-3.5px}
+  .stage[data-phase="turn"] .stage-node{top:-1px;left:-6.5px}
+  .stage-gloss{padding-right:0}
+  .era{grid-template-columns:1fr;gap:.7rem}
+  .era-when{padding-top:0;grid-auto-flow:column;justify-content:start;gap:1rem}
+  /* fewer objects, larger, so the installation still reads */
+  .obj-secondary{display:none}
+}
+@media (max-width:720px){
+  .threshold-copy{padding-top:32vh;padding-bottom:clamp(96px,15vh,150px)}
+  .wall-label{max-width:15em;line-height:1.9}
+  .enter-cue{display:none}
+  .nav{
+    position:fixed;inset:0;z-index:75;flex-direction:column;justify-content:center;align-items:flex-start;
+    gap:1.8rem;padding:0 var(--gutter);background:var(--warm-white);color:var(--ink);
+    clip-path:circle(0% at calc(100% - 40px) 34px);transition:clip-path 1100ms var(--ease);
+  }
+  .nav[data-open="true"]{clip-path:circle(150% at calc(100% - 40px) 34px)}
+  .nav-link{font-family:var(--display);font-size:29px;letter-spacing:-.02em;text-transform:none;
+    opacity:.9;color:var(--ink);font-variation-settings:"opsz" 96,"SOFT" 40,"WONK" 0}
+  .nav-link[aria-current="page"]{color:var(--gold)}
+  .nav-toggle{display:block;position:relative;z-index:80;order:3}
+  .utils{order:2}
+  .util-label{display:none}
+}
+@supports (padding:max(0px)){
+  .foot .shell{padding-bottom:max(clamp(80px,11vh,150px),env(safe-area-inset-bottom))}
+}
+
+/* ══ 21 · REDUCED MOTION — the rooms stay lit, the air stops ══════════ */
+@media (prefers-reduced-motion:reduce){
+  html:focus-within{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:1ms !important;animation-iteration-count:1 !important;
+    transition-duration:1ms !important}
+  .rise{opacity:1;transform:none}
+  .plane-far,.plane-mid,.plane-near,.volumetric,.beam,.residue{transform:none}
+  .obj{transform:translate3d(-50%,-50%,0) rotate(var(--rot,0deg))}
+  .act-mark,.rung-rule{transform:scaleX(1)}
+  .stage::before{transform:none}
+  .stage-node{background:var(--gold-soft)}
+  .motes,.enter-cue::after{display:none}
+  #spark,.spark-word{display:none}
+}
+@media print{
+  .masthead,.thread,#spark,.spark-word,.enter-cue,.motes,.scrim,.beam,.volumetric,.obj{display:none}
+  body,.room-dark,.night,.foot,.door,.lit{background:#fff;color:#000}
+  .plane{position:static}
+}
+
+
+/* ══ 22 · THE FIVE ROOMS, AS ARCHITECTURE ═════════════════════════════
+   Cover the titles and you should still know which world you are in:
+   the ceiling height changes, the copy stands somewhere else, the light
+   arrives from a different side. Composition carries the meaning that
+   words would otherwise have to carry.                                */
+.door-entertainment{min-height:clamp(360px,62vh,660px)}        /* impossible: the tallest room */
+.door-education{min-height:clamp(300px,46vh,480px)}            /* human: the height of a hall */
+.door-culture{min-height:clamp(260px,38vh,400px)}              /* historical: wide, low, horizon */
+.door-innovation{min-height:clamp(300px,44vh,460px)}           /* precise: measured */
+.door-institution{min-height:clamp(380px,68vh,720px)}          /* eternal: the room with no ceiling */
+
+.door-education .door-copy{text-align:center;max-width:min(46em,90vw)}
+.door-education .door-promise{margin-inline:auto}
+.door-education .door-handle{justify-content:center}
+
+.door-culture .door-copy{padding-bottom:clamp(1.4rem,2.4vw,2rem)}
+.door-culture .door-name{font-size:clamp(24px,3.1vw,44px)}
+
+.door-innovation .door-copy{align-self:flex-start;padding-top:clamp(3.2rem,7vw,6rem)}
+
+.door-institution .door-copy{
+  display:flex;flex-direction:column;align-items:flex-end;text-align:right;
+  padding-bottom:clamp(2.6rem,5vw,4.4rem);
+}
+.door-institution .door-promise{max-width:20em}
+
+@media (max-width:720px){
+  .door-entertainment,.door-institution{min-height:clamp(320px,58vh,520px)}
+  .door-culture,.door-education,.door-innovation{min-height:clamp(260px,42vh,420px)}
+  .door-institution .door-copy{align-items:flex-start;text-align:left}
+  .door-education .door-copy{text-align:left}
+  .door-education .door-promise{margin-inline:0}
+  .door-education .door-handle{justify-content:flex-start}
+  .obj-secondary{display:none}
+}
+
+
+/* ══ 23 · THE HOUSE LIGHTS ════════════════════════════════════════════
+   One sequence, and the only one on the site. Between the third act and
+   the law, the room goes dark — driven by the visitor's own scroll, at
+   the speed of their own hand, never on a timer. Theatre, not animation:
+   nothing moves, the light simply leaves.                             */
+.housefall{
+  position:fixed;inset:0;z-index:58;pointer-events:none;
+  background:radial-gradient(70% 60% at 50% 44%,rgba(255,252,244,.97) 0%,rgba(255,246,228,.86) 46%,rgba(252,240,216,.7) 100%);
+  opacity:0;will-change:opacity;
+}
+/* while the lights fall, the room quiets: the dust settles, the air stills */
+.is-falling .motes{opacity:.18;transition:opacity 2.4s var(--ease)}
+.is-falling .beam{opacity:.22;transition:opacity 2.4s var(--ease)}
+
+/* ══ 24 · FIVE RHYTHMS ════════════════════════════════════════════════
+   Not five speeds chosen for variety: five speeds that mean something.
+   Wonder blooms. Warmth arrives at human pace. Civilisation barely
+   moves. Precision answers immediately. Legacy is the slowest thing
+   in the house.                                                       */
+.door-entertainment .door-plate img{transition-duration:3600ms}
+.door-education .door-plate img{transition-duration:2400ms}
+.door-culture .door-plate img{transition-duration:5200ms}
+.door-innovation .door-plate img{transition-duration:900ms}
+.door-institution .door-plate img{transition-duration:6400ms}
+.door-innovation .door-handle,.door-innovation .door-handle::after{transition-duration:420ms}
+.door-culture .door-handle,.door-culture .door-handle::after{transition-duration:1800ms}
+.door-institution .door-handle,.door-institution .door-handle::after{transition-duration:2200ms}
+
+/* ══ 25 · PRESENCE ════════════════════════════════════════════════════
+   Negative delays: every slow cycle in the house is already part-way
+   through when the page loads. Nothing begins when the visitor arrives,
+   because nothing here began with them.                               */
+.beam{animation-delay:-17s}
+.residue{animation-delay:-38s}
+.obj-drift{animation-delay:-23s}
+.door-entertainment .door-plate,.door-culture .door-plate{animation-delay:-11s}
+
+
+/* ══ 26 · CURIOSITY IS LIGHT ══════════════════════════════════════════
+   The type is flagged, not the picture: a soft pool of shade travels
+   with the words, so the room behind them can stay bright.           */
+.door-copy::before,.threshold-copy::before{
+  content:"";position:absolute;inset:-16% -10% -34% -10%;z-index:-1;pointer-events:none;
+  background:radial-gradient(72% 100% at 24% 76%,rgba(10,8,6,.8),rgba(10,8,6,.34) 52%,transparent 82%);
+  filter:blur(24px);
+}
+.door-institution .door-copy::before{background:radial-gradient(72% 100% at 76% 76%,rgba(10,8,6,.8),rgba(10,8,6,.32) 52%,transparent 82%)}
+.door-education .door-copy::before{background:radial-gradient(82% 100% at 50% 80%,rgba(10,8,6,.78),rgba(10,8,6,.3) 54%,transparent 84%)}
+.door-innovation .door-copy::before{background:radial-gradient(72% 100% at 24% 28%,rgba(10,8,6,.76),rgba(10,8,6,.3) 52%,transparent 82%)}
+
+
+/* more silence between the rooms */
+:root{--room:clamp(124px,21vh,292px)}
+
+
+/* ══ 27 · THE HEADER READS THE ROOM ═══════════════════════════════════
+   Declared per section, not guessed from a blend mode: over a bright sky
+   the type turns to ink, over a dark room it turns to ivory, and a very
+   thin veil of the room's own colour keeps it legible without ever
+   becoming a navigation bar.                                          */
+.masthead::before{opacity:1;transition:opacity 900ms var(--ease),background 900ms var(--ease)}
+.masthead.on-dark::before{
+  background:linear-gradient(to bottom,rgba(9,7,5,.62) 0%,rgba(9,7,5,.26) 52%,transparent 100%);
+}
+.masthead.on-light{color:var(--ink)}
+.masthead.on-light::before{
+  background:linear-gradient(to bottom,rgba(252,249,242,.82) 0%,rgba(252,249,242,.42) 54%,transparent 100%);
+}
+.masthead.on-light .nav-link{color:var(--ink);opacity:.72}
+.masthead.on-light .nav-link:hover,.masthead.on-light .nav-link:focus-visible{opacity:1}
+.masthead.on-light .nav-link[aria-current="page"]{color:var(--gold);opacity:1}
+.masthead.on-light .util,.masthead.on-light .lang{color:var(--ink)}
+.masthead.on-light .lang[aria-current="true"]{color:var(--gold)}
+.masthead.on-light .wordmark{color:var(--ink)}
+.masthead.on-light .wordmark-spark{
+  background:radial-gradient(circle,#FFF3DC 0%,var(--gold) 42%,rgba(169,127,44,0) 78%);
+  box-shadow:0 0 10px 2px rgba(169,127,44,.45);
+}
+.masthead.is-settled.on-light::before{background:linear-gradient(to bottom,rgba(252,249,242,.94),rgba(252,249,242,.6) 60%,transparent)}
+
+/* ══ 28 · IMAGES KEEP THEIR OWN PROPORTIONS ═══════════════════════════
+   No forced ratio on a hung plate: the photograph decides its own shape,
+   so nothing is stretched and no composition is cropped away.        */
+.exhibit-plate img{width:100%;height:auto;aspect-ratio:auto;object-fit:contain}
+.exhibit-lead .exhibit-plate img,.exhibit-pair .exhibit-plate img{aspect-ratio:auto}
+
+
+/* ══ 29 · THE LIGHT THE VISITOR CARRIES ═══════════════════════════════
+   One fixed lamp follows the pointer and warms whatever it passes over:
+   paper lifts, glass catches an edge, gold answers. It is a single
+   element with a single gradient — nothing is recalculated per object,
+   so an iPad never feels it.                                         */
+.cursor-lamp{
+  position:fixed;inset:0;z-index:6;pointer-events:none;opacity:0;
+  background:radial-gradient(340px 340px at var(--px,50%) var(--py,50%),
+    rgba(255,214,150,.20) 0%,rgba(255,198,116,.09) 34%,rgba(255,190,100,0) 68%);
+  mix-blend-mode:soft-light;
+  transition:opacity 1400ms var(--ease);
+  will-change:background;
+}
+.spark-on .cursor-lamp{opacity:1}
+.is-dark-room .cursor-lamp{
+  background:radial-gradient(420px 420px at var(--px,50%) var(--py,50%),
+    rgba(255,206,132,.16) 0%,rgba(255,186,96,.06) 38%,rgba(255,180,90,0) 70%);
+  mix-blend-mode:screen;
+}
+@media (prefers-reduced-motion:reduce){.cursor-lamp{display:none}}
+@media (hover:none){.cursor-lamp{display:none}}
+
+
+/* ══ 30 · THE ENQUIRY ═════════════════════════════════════════════════
+   An institutional form: no boxes competing with the type, only ruled
+   lines, the way a form is printed on good paper. It works without
+   JavaScript — the address is always visible beneath it.             */
+.enquiry{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(1.6rem,3vw,2.6rem) clamp(2rem,4vw,4rem);
+  margin-top:clamp(2.4rem,5vw,4rem);max-width:52em;
+}
+.field{display:grid;gap:.5rem;margin:0}
+.field-wide{grid-column:1 / -1}
+.field label{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-quiet);
+}
+.field-note{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--ink-quiet);opacity:.8;text-transform:none}
+.field input,.field textarea{
+  font-family:var(--display);font-weight:400;font-size:clamp(16px,1.35vw,20px);
+  font-variation-settings:"opsz" 72,"SOFT" 40,"WONK" 0;
+  color:var(--ink);background:transparent;border:0;border-bottom:1px solid rgba(60,78,92,.28);
+  padding:.5rem 0;width:100%;border-radius:0;
+  transition:border-color 700ms var(--ease);
+}
+.field textarea{resize:vertical;line-height:1.5}
+.field input:focus,.field textarea:focus{outline:none;border-bottom-color:var(--gold)}
+.field input:focus-visible,.field textarea:focus-visible{outline:2px solid var(--gold);outline-offset:6px}
+.field-actions{display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.8rem;margin-top:.6rem}
+.enquiry-send{
+  background:none;border:0;padding:.3rem 0;cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);
+  border-bottom:1px solid rgba(169,127,44,.45);transition:border-color 700ms var(--ease),letter-spacing 700ms var(--ease);
+}
+.enquiry-send:hover,.enquiry-send:focus-visible{border-bottom-color:var(--gold);letter-spacing:.24em}
+.field.is-missing input,.field.is-missing textarea{border-bottom-color:#9C3B21}
+@media (max-width:720px){.enquiry{grid-template-columns:1fr}}
+
+
+/* ══ 31 · THE PRODUCTION ══════════════════════════════════════════════
+   A programmer reads three things: can we fit it, what does it cost us
+   in staff and hours, and does it move a room of children. The page is
+   built so those three are never more than one screen apart.        */
+
+/* a photograph hung at full width, with its wall label beneath */
+.plate-full{position:relative;margin:0;overflow:hidden;background:var(--black)}
+.plate-full .plane{position:relative;inset:auto}
+.plate-full img{width:100%;height:auto;display:block}
+.plate-full::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(14,10,7,.32) 0%,transparent 18%,transparent 74%,rgba(14,10,7,.5) 100%);
+}
+.plate-cap{
+  position:absolute;left:0;right:0;bottom:clamp(1rem,2.4vw,2rem);z-index:2;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(239,234,221,.82);
+}
+
+/* three configurations: the objection, answered in one screen */
+.configs{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0;margin-top:clamp(2.6rem,5vw,4rem);
+  border-top:1px solid rgba(60,78,92,.18);
+}
+.config{padding:clamp(1.6rem,3vw,2.4rem) clamp(1.4rem,2.6vw,2.2rem) clamp(1.6rem,3vw,2.4rem) 0;
+  border-bottom:1px solid rgba(60,78,92,.12)}
+.config + .config{border-left:1px solid rgba(60,78,92,.12);padding-left:clamp(1.4rem,2.6vw,2.2rem)}
+.config-name{
+  font-family:var(--display);font-weight:400;font-variation-settings:"opsz" 72,"SOFT" 40,"WONK" 0;
+  font-size:clamp(19px,1.9vw,26px);letter-spacing:-.012em;
+}
+.config-venue{margin-top:.4rem;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-quiet);line-height:1.7}
+.config-list{margin-top:1.2rem;display:grid;gap:.5rem}
+.config-list li{font-size:14.5px;line-height:1.5;color:var(--ink-quiet)}
+.config-list li:first-child{color:var(--ink);font-family:var(--display);font-size:clamp(17px,1.5vw,21px)}
+
+/* a photograph and a paragraph, each holding half the room */
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
+.split-plate{position:relative;overflow:hidden;min-height:clamp(320px,52vh,620px)}
+.split-plate img{width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+.split-copy{display:flex;align-items:center}
+
+@media (max-width:900px){
+  .configs{grid-template-columns:1fr}
+  .config + .config{border-left:0;padding-left:0}
+  .split{grid-template-columns:1fr}
+  .split-plate{min-height:clamp(260px,44vh,420px)}
+}
+
+
+/* ══ 32 · THE PHONE IS NOT A SMALL DESKTOP ════════════════════════════
+   Below 720 px every label, caption and control is raised to a size a
+   thumb can hit and an eye can read at arm's length. Nothing is scaled
+   down from the desktop: the small type simply stops being small.   */
+@media (max-width:720px){
+  .eyebrow{font-size:11px;letter-spacing:.2em}
+  .label,.note,.era-name,.era-kind,.foot-head,.foot-legal,.plate-cap,
+  .wall-label,.dossier-key,.guest-role,.config-venue,.exhibit-caption .label,
+  .audience-role,.stage-gloss,.field label,.field-note{font-size:11px !important;letter-spacing:.14em}
+  .era-kind{opacity:.9}
+  .discipline-note,.guest-note,.config-list li,.dossier-value{font-size:15.5px;line-height:1.62}
+  .foot-link{font-size:15.5px}
+  .handle,.door-handle,.enquiry-send,.util,.lang,.langs,.nav-toggle,.util-state{font-size:11.5px;letter-spacing:.16em}
+  .contact{min-height:44px;display:inline-flex;align-items:center}
+  .foot-legal a{padding-block:.35rem;display:inline-block}
+  .skip{font-size:12px}
+
+  /* touch targets: nothing smaller than a fingertip */
+  .nav-link,.foot-link,.lang,.util,.handle,.door-handle{
+    display:inline-flex;align-items:center;min-height:44px;
+  }
+  .foot-list li + li{margin-top:.2rem}
+  .langs{gap:.7rem}
+  .utils{gap:1.1rem}
+
+  /* the rooms breathe less on a phone: air is a desktop luxury */
+  :root{--room:clamp(76px,13vh,132px)}
+  .room-tight{padding-block:clamp(54px,8vh,88px)}
+  .plate-cap{bottom:.9rem}
+  .threshold-copy{padding-bottom:clamp(72px,12vh,120px)}
+}
+
+/* ══ 33 · ONE JOURNEY, NOT ELEVEN PAGES ═══════════════════════════════
+   Where the browser supports it, a page dissolves into the next instead
+   of cutting to it. No library, no JavaScript, no cost when unsupported. */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){
+  animation-duration:640ms;
+  animation-timing-function:cubic-bezier(.16,1,.3,1);
+}
+::view-transition-old(root){animation-name:roomOut}
+::view-transition-new(root){animation-name:roomIn}
+@keyframes roomOut{to{opacity:0}}
+@keyframes roomIn{from{opacity:0}}
+
+/* a photograph you can walk into */
+.plate-link{display:block;text-decoration:none;color:inherit}
+.plate-link .exhibit-plate img{transition:transform 3200ms var(--ease),filter 1600ms var(--ease)}
+.plate-link:hover .exhibit-plate img,.plate-link:focus-visible .exhibit-plate img{
+  transform:scale(1.028);filter:brightness(1.06)}
+.plate-link:focus-visible{outline:2px solid var(--gold);outline-offset:8px}
+
+@media (prefers-reduced-motion:reduce){
+  @view-transition{navigation:none}
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+}
+
+
+/* ══ 34 · ON TOUR NOW ═════════════════════════════════════════════════
+   A programmer arriving from a search should meet the production before
+   the philosophy. One block, one photograph, four facts, one door.   */
+.onstage{
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+  gap:clamp(1.6rem,3.4vw,3.4rem);align-items:center;text-decoration:none;color:inherit;
+  margin-top:clamp(1.6rem,3vw,2.6rem);
+}
+.onstage-plate{position:relative;overflow:hidden;background:var(--stone)}
+.onstage-plate img{width:100%;height:auto;display:block;
+  transition:transform 2800ms var(--ease),filter 1400ms var(--ease)}
+.onstage:hover .onstage-plate img,.onstage:focus-visible .onstage-plate img{
+  transform:scale(1.03);filter:brightness(1.05)}
+.onstage:focus-visible{outline:2px solid var(--gold);outline-offset:10px}
+.onstage-copy{display:block}
+.onstage-name{
+  display:block;font-family:var(--display);font-weight:300;
+  font-variation-settings:"opsz" 144,"SOFT" 30,"WONK" 0;
+  font-size:clamp(28px,3.6vw,52px);line-height:1.04;letter-spacing:-.022em;
+}
+.onstage-line{display:block;margin-top:.9rem;max-width:24em;font-size:clamp(15.5px,1.2vw,19px);
+  line-height:1.6;color:var(--ink-quiet)}
+.onstage-facts{
+  display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;margin-top:1.4rem;
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-quiet);
+}
+.onstage-facts span{position:relative}
+.onstage-facts span + span::before{content:"";position:absolute;left:-.75rem;top:.42em;
+  width:1px;height:.9em;background:rgba(60,78,92,.28)}
+.onstage .handle{margin-top:1.6rem}
+@media (max-width:900px){
+  .onstage{grid-template-columns:1fr}
+  .onstage-facts{font-size:11px}
+}
+
+
+/* ══ 35 · THE RECORD ══════════════════════════════════════════════════
+   Figures a programmer can check, attributed to the press that published
+   them. Large numerals, small sources: the proportion is the argument. */
+.tally{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
+  margin-top:clamp(2.4rem,5vw,4rem);border-top:1px solid rgba(60,78,92,.18);
+}
+.tally-item{padding:clamp(1.4rem,2.6vw,2.2rem) 1.6rem clamp(1.4rem,2.6vw,2.2rem) 0;
+  border-bottom:1px solid rgba(60,78,92,.12)}
+.tally-item + .tally-item{border-left:1px solid rgba(60,78,92,.12);padding-left:clamp(1.4rem,2.6vw,2.2rem)}
+.tally-fig{
+  font-family:var(--display);font-weight:300;
+  font-variation-settings:"opsz" 144,"SOFT" 20,"WONK" 0;
+  font-size:clamp(34px,4.4vw,62px);line-height:1;letter-spacing:-.03em;color:var(--gold-lg);
+}
+.tally-note{margin-top:.7rem;font-size:14px;line-height:1.5;color:var(--ink-quiet);max-width:16em}
+
+.cuttings{margin-top:clamp(3rem,6vw,5rem)}
+.cuttings-list{display:grid;gap:0;border-top:1px solid rgba(60,78,92,.14)}
+.cuttings-list li{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem clamp(1.6rem,3vw,3rem);
+  align-items:baseline;padding-block:clamp(.9rem,1.8vw,1.4rem);
+  border-bottom:1px solid rgba(60,78,92,.1);
+}
+.cutting-line{font-family:var(--display);font-weight:400;
+  font-variation-settings:"opsz" 72,"SOFT" 40,"WONK" 0;
+  font-size:clamp(16px,1.45vw,21px);line-height:1.35;letter-spacing:-.01em}
+.cutting-src{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-quiet);white-space:nowrap}
+@media (max-width:900px){
+  .tally{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tally-item:nth-child(odd) + .tally-item{border-left:1px solid rgba(60,78,92,.12)}
+  .tally-item:nth-child(odd){border-left:0;padding-left:0}
+  .cuttings-list li{grid-template-columns:1fr;gap:.4rem}
+  .cutting-src{white-space:normal}
+}
+@media (max-width:520px){
+  .tally{grid-template-columns:1fr}
+  .tally-item,.tally-item + .tally-item{border-left:0;padding-left:0}
+}
+
+
+/* ══ 36 · OPERATING DATA ══════════════════════════════════════════════
+   A label above, a value below, one fact per cell. A programmer scans
+   this table before reading a single sentence of the page.          */
+.dossier{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
+  margin-top:clamp(2rem,4vw,3.2rem);border-top:1px solid rgba(60,78,92,.18);
+}
+.dossier-item{
+  padding:clamp(1.3rem,2.4vw,2rem) clamp(1.4rem,2.6vw,2.2rem) clamp(1.3rem,2.4vw,2rem) 0;
+  border-bottom:1px solid rgba(60,78,92,.12);
+}
+.dossier-item + .dossier-item{border-left:1px solid rgba(60,78,92,.12);
+  padding-left:clamp(1.4rem,2.6vw,2.2rem)}
+.dossier-item:nth-child(3n+1){border-left:0;padding-left:0}
+.dossier-key{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-quiet);margin-bottom:.7rem;
+}
+.dossier-value{
+  font-family:var(--display);font-weight:400;
+  font-variation-settings:"opsz" 72,"SOFT" 40,"WONK" 0;
+  font-size:clamp(16px,1.45vw,21px);line-height:1.34;letter-spacing:-.01em;color:var(--ink);
+}
+@media (max-width:900px){
+  .dossier{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dossier-item:nth-child(3n+1){border-left:1px solid rgba(60,78,92,.12);padding-left:clamp(1.4rem,2.6vw,2.2rem)}
+  .dossier-item:nth-child(2n+1){border-left:0;padding-left:0}
+}
+@media (max-width:560px){
+  .dossier{grid-template-columns:1fr}
+  .dossier-item,.dossier-item + .dossier-item,.dossier-item:nth-child(3n+1){border-left:0;padding-left:0}
+}
+
+/* ══ 37 · THE WALL LABEL DOES NOT TOUCH THE TITLE ═════════════════════
+   French runs longer than English. The label leaves the corner and sits
+   under the heading, in the flow, where it can never overlap.       */
+.wall-label{
+  position:static;display:block;margin-top:clamp(1.4rem,2.6vw,2.2rem);
+  max-width:34em;
+}
+.threshold-copy .wall-label{margin-bottom:0}
+
+
+/* ══ 38 · THE LAW, READ IN A LIGHT ROOM ═══════════════════════════════
+   Gold on cream is not a colour, it is an absence. In the sanctum the
+   law is set in ink and the gold stays where it works: the rule beside
+   it. Declared last so no earlier dark-room rule can override it.   */
+.light-sanctum .law{border-left-color:var(--gold)}
+.light-sanctum .law .declaration{color:var(--ink)}
+.light-sanctum .law-note{color:var(--ink-quiet)}
+.light-sanctum .eyebrow{color:var(--ink-quiet)}
+.light-sanctum .mantra,.light-sanctum .creed-open{color:var(--ink)}
+
+
+/* ══ 40 · ONE RULE FOR EVERY LIGHT ROOM ═══════════════════════════════
+   Any section that declares itself light takes light-room type. Written
+   as a single selector so a new room can never be forgotten.       */
+[data-header="light"] .creed-open,
+[data-header="light"] .mantra,
+[data-header="light"] .law .declaration{color:var(--ink)}
+[data-header="light"] .law{border-left-color:var(--gold)}
+[data-header="light"] .law-note{color:var(--ink-quiet)}
+[data-header="light"] .eyebrow,
+[data-header="light"] .label,
+[data-header="light"] .note{color:var(--ink-quiet)}
+[data-header="light"] .lede,
+[data-header="light"] .quiet{color:var(--ink-quiet)}
+[data-header="light"] .handle,
+[data-header="light"] .gold,
+[data-header="light"] .guest-role{color:var(--gold)}
+[data-header="light"] .contact{color:var(--ink);border-bottom-color:rgba(138,106,37,.42)}
+[data-header="light"] .rule{background:linear-gradient(to right,rgba(60,78,92,.22),rgba(60,78,92,.04) 70%,transparent)}
+[data-header="light"] .foot-link{color:var(--ink-quiet)}
+
+/* the overture, when it stands in a light room rather than over a plate */
+[data-header="light"] .room .overture,
+[data-header="light"] > .room .overture,
+.light-sanctum .room .overture{color:var(--ink)}
+.light-sanctum .eyebrow,[data-header="light"] .eyebrow{color:var(--ink-quiet);opacity:.92}
+
+
+/* ══ 41 · THE SCHOOL SHEETS ═══════════════════════════════════════════
+   Two documents, two territories, side by side. A head teacher reads
+   only the one that matches the plug in the wall.                   */
+.school-sheets{
+  display:flex;flex-wrap:wrap;gap:1rem clamp(1.8rem,4vw,3.4rem);
+  margin-top:2rem;
+}
+
+
+/* ══ 42 · LIGHT PLATES BELONG TO THE DARK ═════════════════════════════
+   A filament of light composited in screen mode adds nothing to a cream
+   wall except a washed rectangle — which reads as a second, ghosted
+   photograph. The plates stay where they were made to work: the dark
+   rooms. Everywhere else they simply do not exist.                  */
+[data-header="light"] .residue,
+[data-header="light"] .sparklight,
+.light-sanctum .residue,
+.light-sanctum .sparklight,
+.light-gallery .residue,
+.light-gallery .sparklight,
+.light-museum .residue,
+.light-museum .sparklight,
+.light-afternoon .residue,
+.light-afternoon .sparklight{display:none}
