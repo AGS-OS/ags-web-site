@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AGS — At the beginning, no one knows who they will become</title>
+<meta name="description" content="AGS creates stories, learning and cultural work for the instant a child meets a part of themselves they had not met yet. Five worlds, one philosophy.">
+<link rel="canonical" href="https://www.agsproduction.fr/">
+<link rel="alternate" hreflang="en" href="https://www.agsproduction.fr/">
+<link rel="alternate" hreflang="fr" href="https://www.agsproduction.fr/fr-index.html">
+<link rel="alternate" hreflang="es" href="https://www.agsproduction.fr/es-index.html">
+<link rel="alternate" hreflang="x-default" href="https://www.agsproduction.fr/">
+<meta name="theme-color" content="#120E09">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AGS">
+<meta property="og:locale" content="en">
+<meta property="og:title" content="AGS — At the beginning, no one knows who they will become">
+<meta property="og:description" content="Stories, learning and cultural work for the instant a child discovers who they could be.">
+<meta property="og:url" content="https://www.agsproduction.fr/">
+<meta property="og:image" content="https://www.agsproduction.fr/ags-social-preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="desk-ray-1600.avif" type="image/avif" fetchpriority="high">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..600,0..100,0..1&family=IBM+Plex+Mono:wght@400&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ags.css">
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "name":"AGS",
+  "alternateName":"AGS Production",
+  "url":"https://www.agsproduction.fr/",
+  "logo":"https://www.agsproduction.fr/favicon.svg",
+  "description":"AGS creates stories, learning and cultural work that help children discover who they could become.",
+  "founder":{"@type":"Person","name":"Axel García Stur"},
+  "knowsAbout":["Children's storytelling","Arts education","Cultural policy","Educational methodology"]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- The Spark. Not an element: light, drawn additively. -->
+<canvas id="spark" aria-hidden="true"></canvas>
+<div class="cursor-lamp" aria-hidden="true"></div>
+<span class="spark-word" aria-hidden="true"></span>
+
+<div class="housefall" aria-hidden="true"></div>
+
+<div class="thread" aria-hidden="true">
+  <span class="thread-trace"></span>
+  <span class="thread-node"></span>
+</div>
+
+<header class="masthead on-dark">
+  <a class="wordmark" href="index.html" aria-label="AGS — home" data-chispa-word="Home">
+    AGS<span class="wordmark-spark" aria-hidden="true"></span>
+  </a>
+  <div class="utils">
+    <button class="util util-sound" type="button" aria-pressed="false">
+      <span class="util-label">Sound</span> <span class="util-state">off</span>
+    </button>
+    <p class="langs"><a class="lang" href="index.html" aria-current="true" lang="en">EN</a><span class="lang-sep">·</span><a class="lang" href="fr-index.html" data-set-lang="fr" lang="fr">FR</a><span class="lang-sep">·</span><a class="lang" href="es-index.html" data-set-lang="es" lang="es">ES</a></p>
+  </div>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+  <nav class="nav" id="nav" data-open="false" aria-label="Main">
+    <a class="nav-link" href="i-am-mozart.html" data-chispa-word="Open">I Am Mozart</a>
+    <a class="nav-link" href="manifesto.html" data-chispa-word="Read">Manifesto</a>
+    <a class="nav-link" href="#worlds" data-chispa-word="Enter">The five worlds</a>
+    <a class="nav-link" href="#work" data-chispa-word="View">Work</a>
+    <a class="nav-link" href="institution.html" data-chispa-word="Enter">Institution</a>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- ══ ROOM 1 · THE THRESHOLD ══════════════════════════════════════
+       An installation, not a picture: a table in the dark, one shaft of
+       morning light, and four objects at four distances from the reader.
+       The flask stands in front of the type, because in a real room
+       things do.                                                      -->
+  <section class="scene threshold light-morning" data-header="dark" data-scene style="--lx:22%;--ly:12%" aria-labelledby="threshold-title">
+    <div class="plane plane-far" aria-hidden="true">
+      <picture>
+        <source type="image/avif" srcset="desk-ray-640.avif 640w, desk-ray-1024.avif 1024w, desk-ray-1600.avif 1600w" sizes="100vw">
+        <source type="image/webp" srcset="desk-ray-640.webp 640w, desk-ray-1024.webp 1024w, desk-ray-1600.webp 1600w" sizes="100vw">
+        <img src="desk-ray-1600.jpg" alt="" width="1536" height="1024" fetchpriority="high" decoding="async">
+      </picture>
+    </div>
+
+    <span class="volumetric" aria-hidden="true"></span>
+    <span class="beam" aria-hidden="true"></span>
+    <canvas class="motes" aria-hidden="true"></canvas>
+
+
+    <span class="scrim scrim-b" aria-hidden="true"></span>
+
+    <div class="threshold-copy shell">
+      <h1 class="overture" id="threshold-title" data-chispa="read">At the beginning,<br>no one knows<br>who they will become.</h1>
+    <p class="wall-label">A score, half written. A flask. A compass. The sketch of a wing.<br>Questions with no owner yet.</p>
+    </div>
+  </section>
+
+  <!-- ══ ROOM 2 · WHY — three acts, daylight from above ══════════════ -->
+  <section class="lit light-gallery" data-header="light" data-fall="from" aria-labelledby="why-title">
+    <div class="shell room-tight">
+      <p class="eyebrow rise" id="why-title">Why AGS exists</p>
+    </div>
+    <div class="acts">
+      <div class="act act-i rise">
+        <div class="shell"><div class="act-line">
+          <span class="act-mark" aria-hidden="true"></span>
+          <p class="declaration" data-chispa="read">Potential is not granted.<span class="turn">It is discovered.</span></p>
+        </div></div>
+      </div>
+      <div class="act act-ii rise">
+        <div class="shell"><div class="act-line">
+          <span class="act-mark" aria-hidden="true"></span>
+          <p class="declaration" data-chispa="read">Curiosity is where learning begins.</p>
+        </div></div>
+      </div>
+      <div class="act act-iii rise">
+        <div class="shell"><div class="act-line">
+          <span class="act-mark" aria-hidden="true"></span>
+          <p class="declaration" data-chispa="read">One story is enough to start a life.</p>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ THE PRODUCTION, EARLY: what a programmer came for ══════════ -->
+  <section class="lit light-museum" data-header="light" aria-labelledby="now-title">
+    <div class="room-tight shell">
+      <p class="eyebrow rise" id="now-title">On tour now</p>
+      <a class="onstage rise" href="i-am-mozart.html" data-chispa-word="Open">
+        <span class="onstage-plate">
+          <picture>
+            <source type="image/avif" srcset="hall-children-640.avif 640w, hall-children-1024.avif 1024w, hall-children-1600.avif 1600w" sizes="(max-width:900px) 100vw, 54vw">
+            <source type="image/webp" srcset="hall-children-640.webp 640w, hall-children-1024.webp 1024w, hall-children-1600.webp 1600w" sizes="(max-width:900px) 100vw, 54vw">
+            <img src="hall-children-1024.jpg" alt="A full auditorium of schoolchildren with their arms raised, answering the performer on stage." width="1448" height="1086" loading="lazy" decoding="async">
+          </picture>
+        </span>
+        <span class="onstage-copy">
+          <span class="onstage-name">I Am Mozart</span>
+          <span class="onstage-line">Live piano and theatre for children aged 6 to 10. The current form of a decade of didactic concerts.</span>
+          <span class="onstage-facts">
+            <span>60 min</span><span>6–10 years</span><span>Up to 1,200</span><span>FR · EN · ES</span>
+          </span>
+          <span class="handle">See the production</span>
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ══ ROOM 3 · THE MANIFESTO — almost complete darkness ═══════════ -->
+  <section class="scene lit light-sanctum" data-scene data-fall="to" data-cue="breath" aria-labelledby="manifesto-title">
+    <span class="residue" style="--d:-26;left:52%;top:-6%;width:52%;opacity:.5" aria-hidden="true">
+      <img src="light-trail-1280.webp" alt="" width="1280" height="853" loading="lazy" decoding="async">
+    </span>
+    <canvas class="motes" aria-hidden="true"></canvas>
+    <div class="room shell">
+      <p class="eyebrow rise" id="manifesto-title">The manifesto</p>
+      <div class="creed">
+        <p class="creed-open rise" data-chispa="read">We do not dream of children who admire great people.</p>
+        <p class="declaration rise" data-chispa="read">We dream of children who dare to ask the same question about themselves.</p>
+        <div class="law rise">
+          <p class="declaration">The protagonist and the one watching discover the world at the same time.</p>
+        </div>
+        <p class="rise"><a class="handle" href="manifesto.html" data-chispa-word="Read">Read the manifesto</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ROOM 4 · OUR HORIZON — long low light from the right ════════ -->
+  <section class="lit light-afternoon" data-header="light" aria-labelledby="horizon-title">
+    <div class="room shell">
+      <p class="eyebrow rise" id="horizon-title">Our horizon</p>
+      <h2 class="statement measure rise" data-chispa="read">The moment is intimate.<span class="turn">The horizon is not.</span></h2>
+      <ol class="ladder rise">
+        <li class="rung" style="--i:0"><span class="rung-rule" aria-hidden="true"></span><span class="rung-step">A child</span></li>
+        <li class="rung" style="--i:1"><span class="rung-rule" aria-hidden="true"></span><span class="rung-step">A classroom</span></li>
+        <li class="rung" style="--i:2"><span class="rung-rule" aria-hidden="true"></span><span class="rung-step">A city</span></li>
+        <li class="rung" style="--i:3"><span class="rung-rule" aria-hidden="true"></span><span class="rung-step">A network across languages</span></li>
+        <li class="rung" style="--i:4"><span class="rung-rule" aria-hidden="true"></span><span class="rung-step">A generation</span></li>
+      </ol>
+      <p class="label rise" style="margin-top:1.6rem">Stated as ambition. Not as achievement.</p>
+    </div>
+  </section>
+
+  <!-- ══ ROOM 5 · THE MISSION — clean daylight, nothing else ═════════ -->
+  <section class="lit light-gallery" data-header="light" aria-labelledby="mission-title">
+    <div class="room shell">
+      <p class="eyebrow rise" id="mission-title">The mission</p>
+      <h2 class="declaration measure-wide rise" data-chispa="read">To create founding moments — the instant a child meets a part of themselves they had not met yet.</h2>
+      <div class="rise" style="margin-top:clamp(3.6rem,7.4vw,6.4rem);max-width:26em">
+        <p class="label" style="margin-bottom:1.5rem">What we do not do</p>
+        <p class="title-sm">We help a child discover what their curiosity could become.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ROOM 6 · THE METHOD — architectural museum light ════════════ -->
+  <section class="lit light-museum" data-header="light" aria-labelledby="method-title">
+    <div class="room shell">
+      <p class="eyebrow rise" id="method-title">The method</p>
+      <h2 class="statement measure rise" data-chispa="read">Seven stages.<span class="turn">One inflection.</span></h2>
+      <ol class="method rise">
+        <li class="stage" data-phase="before" style="--i:0"><span class="stage-node" aria-hidden="true"></span><span class="stage-name">Curiosity</span><span class="stage-gloss">A question wakes</span></li>
+        <li class="stage" data-phase="before" style="--i:1"><span class="stage-node" aria-hidden="true"></span><span class="stage-name">Discovery</span><span class="stage-gloss">Look, try, learn</span></li>
+        <li class="stage" data-phase="before" style="--i:2"><span class="stage-node" aria-hidden="true"></span><span class="stage-name">Passion</span><span class="stage-gloss">It becomes personal</span></li>
+        <li class="stage" data-phase="turn" style="--i:3"><span class="stage-node" aria-hidden="true"></span><span class="stage-name">Vocation</span><span class="stage-gloss">The turn inward</span></li>
+        <li class="stage" data-phase="after" style="--i:4"><span class="stage-node" aria-hidden="true"></span><span class="stage-name">Action</span><span class="stage-gloss">Courage, and error</span></li>
+        <li class="stage" data-phase="after" style="--i:5"><span class="stage-node" aria-hidden="true"></span><span class="stage-name">Transformation</span><span class="stage-gloss">Inward before outward</span></li>
+        <li class="stage" data-phase="after" style="--i:6"><span class="stage-node" aria-hidden="true"></span><span class="stage-name">Impact</span><span class="stage-gloss">A mark left behind</span></li>
+      </ol>
+      <p class="lede measure-wide rise" style="margin-top:clamp(2.8rem,5.4vw,4.4rem)">Vocation is the turn, not the finish. What follows it is the consequence of having found something worth following.</p>
+    </div>
+  </section>
+
+  <!-- ══ ROOM 7 · THE FIVE DOORS ════════════════════════════════════
+       Wonder · warmth · civilisation · precision · legacy.
+       Five rooms of one house, each with its own light.               -->
+  <section id="worlds" aria-labelledby="worlds-title">
+    <div class="lit light-gallery">
+      <div class="shell room-tight">
+        <p class="eyebrow rise" id="worlds-title">The five worlds</p>
+        <h2 class="statement measure-wide rise" data-chispa="read">Five ways of practising one philosophy. None competes with the others.</h2>
+      </div>
+    </div>
+
+    <div class="doors">
+      <a class="door door-entertainment scene" href="entertainment.html" data-scene data-key="wonder" data-chispa-word="Enter">
+        <span class="plane plane-mid door-plate" aria-hidden="true">
+          <picture>
+            <source type="image/avif" srcset="lab-curie-640.avif 640w, lab-curie-1024.avif 1024w, lab-curie-1600.avif 1600w" sizes="100vw">
+            <source type="image/webp" srcset="lab-curie-640.webp 640w, lab-curie-1024.webp 1024w, lab-curie-1600.webp 1600w" sizes="100vw">
+            <img src="lab-curie-1024.jpg" alt="" width="1536" height="1024" loading="lazy" decoding="async">
+          </picture>
+        </span>
+        <span class="scrim" aria-hidden="true"></span>
+        <span class="door-copy">
+          <span class="door-name">Entertainment</span>
+          <span class="door-promise">Stories, and everything they grow into.</span>
+          <span class="door-handle">Enter</span>
+        </span>
+      </a>
+
+      <a class="door door-education scene" href="education.html" data-scene data-key="warmth" data-chispa-word="Enter">
+        <span class="plane plane-mid door-plate" aria-hidden="true">
+          <picture>
+            <source type="image/avif" srcset="lab-vial-640.avif 640w, lab-vial-1024.avif 1024w, lab-vial-1600.avif 1600w" sizes="100vw">
+            <source type="image/webp" srcset="lab-vial-640.webp 640w, lab-vial-1024.webp 1024w, lab-vial-1600.webp 1600w" sizes="100vw">
+            <img src="lab-vial-1024.jpg" alt="" width="1536" height="1024" loading="lazy" decoding="async">
+          </picture>
+        </span>
+        <span class="scrim" aria-hidden="true"></span>
+        <span class="door-copy">
+          <span class="door-name">Education</span>
+          <span class="door-promise">Where the story meets the classroom.</span>
+          <span class="door-handle">Enter</span>
+        </span>
+      </a>
+
+      <a class="door door-culture scene" href="culture.html" data-scene data-key="civilisation" data-chispa-word="Enter">
+        <span class="plane plane-mid door-plate" aria-hidden="true">
+          <picture>
+            <source type="image/avif" srcset="city-dusk-640.avif 640w, city-dusk-1024.avif 1024w, city-dusk-1600.avif 1600w" sizes="100vw">
+            <source type="image/webp" srcset="city-dusk-640.webp 640w, city-dusk-1024.webp 1024w, city-dusk-1600.webp 1600w" sizes="100vw">
+            <img src="city-dusk-1024.jpg" alt="" width="1672" height="941" loading="lazy" decoding="async">
+          </picture>
+        </span>
+        <span class="scrim" aria-hidden="true"></span>
+        <span class="door-copy">
+          <span class="door-name">Culture</span>
+          <span class="door-promise">Curiosity as public infrastructure.</span>
+          <span class="door-handle">Enter</span>
+        </span>
+      </a>
+
+      <a class="door door-innovation scene" href="innovation.html" data-scene data-key="precision" data-chispa-word="Enter">
+        <span class="plane plane-mid door-plate" aria-hidden="true">
+          <picture>
+            <source type="image/avif" srcset="desk-wide-640.avif 640w, desk-wide-1024.avif 1024w, desk-wide-1600.avif 1600w" sizes="100vw">
+            <source type="image/webp" srcset="desk-wide-640.webp 640w, desk-wide-1024.webp 1024w, desk-wide-1600.webp 1600w" sizes="100vw">
+            <img src="desk-wide-1024.jpg" alt="" width="1536" height="1024" loading="lazy" decoding="async">
+          </picture>
+        </span>
+        <span class="scrim" aria-hidden="true"></span>
+        <span class="door-copy">
+          <span class="door-name">Innovation</span>
+          <span class="door-promise">Method before technology.</span>
+          <span class="door-handle">Enter</span>
+        </span>
+      </a>
+
+      <a class="door door-institution scene" href="institution.html" data-scene data-key="legacy" data-chispa-word="Enter">
+        <span class="plane plane-mid door-plate" aria-hidden="true">
+          <picture>
+            <source type="image/avif" srcset="city-gold-640.avif 640w, city-gold-1024.avif 1024w, city-gold-1600.avif 1600w" sizes="100vw">
+            <source type="image/webp" srcset="city-gold-640.webp 640w, city-gold-1024.webp 1024w, city-gold-1600.webp 1600w" sizes="100vw">
+            <img src="city-gold-1024.jpg" alt="" width="1672" height="941" loading="lazy" decoding="async">
+          </picture>
+        </span>
+        <span class="scrim" aria-hidden="true"></span>
+        <span class="door-copy">
+          <span class="door-name">Institution</span>
+          <span class="door-promise">Built to be inherited.</span>
+          <span class="door-handle">Enter</span>
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ══ ROOM 8 · SELECTED WORK — a hall of plates ═══════════════════ -->
+  <section id="work" class="lit light-museum" aria-labelledby="work-title">
+    <div class="room shell">
+      <p class="eyebrow rise" id="work-title">Selected work</p>
+      <div class="exhibits">
+
+        <article class="exhibit exhibit-lead rise">
+          <figure>
+            <a class="plate-link" href="i-am-mozart.html" tabindex="-1" aria-hidden="true" data-chispa-word="Open"><div class="exhibit-plate dissolve-edges">
+              <picture>
+                <source type="image/avif" srcset="stage-mozart-640.avif 640w, stage-mozart-1024.avif 1024w" sizes="(max-width:1180px) 100vw, 58vw">
+                <source type="image/webp" srcset="stage-mozart-640.webp 640w, stage-mozart-1024.webp 1024w" sizes="(max-width:1180px) 100vw, 58vw">
+                <img src="stage-mozart-1024.jpg" alt="A pianist in period costume alone on a stage under a single beam of light." width="1495" height="1052" loading="lazy" decoding="async">
+              </picture>
+            </div></a>
+            <figcaption class="exhibit-caption"><span class="label">I Am Mozart</span><span class="label">Educational concert · Argentina and Mexico</span></figcaption>
+          </figure>
+          <div class="exhibit-body">
+            <p class="statement" data-chispa="read">The didactic concerts created by Axel García Stur have been performed since 2014 in Argentina and Mexico. The press reports over 2,500 performances and more than a million spectators.</p>
+            <a class="handle" href="i-am-mozart.html" data-chispa-word="Open">See the production</a>
+          </div>
+        </article>
+
+        <article class="exhibit exhibit-pair rise">
+          <figure>
+            <a class="plate-link" href="entertainment.html" tabindex="-1" aria-hidden="true" data-chispa-word="Open"><div class="exhibit-plate dissolve-edges">
+              <picture>
+                <source type="image/avif" srcset="lab-night-640.avif 640w, lab-night-1024.avif 1024w, lab-night-1600.avif 1600w" sizes="(max-width:1180px) 100vw, 44vw">
+                <source type="image/webp" srcset="lab-night-640.webp 640w, lab-night-1024.webp 1024w, lab-night-1600.webp 1600w" sizes="(max-width:1180px) 100vw, 44vw">
+                <img src="lab-night-1024.jpg" alt="A girl works at a lamplit table at night; beyond the window, a sleeping city." width="1672" height="941" loading="lazy" decoding="async">
+              </picture>
+            </div></a>
+            <figcaption class="exhibit-caption"><span class="label">Marie Curie</span><span class="label">The first work · in preparation</span></figcaption>
+          </figure>
+          <div class="exhibit-body">
+            <p class="statement" data-chispa="read">She does not ask what it is.<span class="turn">She asks why.</span></p>
+            <a class="handle" href="entertainment.html" data-chispa-word="Discover">Discover the universe</a>
+          </div>
+        </article>
+
+        <article class="exhibit exhibit-pair rise">
+          <figure>
+            <a class="plate-link" href="innovation.html" tabindex="-1" aria-hidden="true" data-chispa-word="Open"><div class="exhibit-plate dissolve-edges">
+              <picture>
+                <source type="image/avif" srcset="desk-ray-640.avif 640w, desk-ray-1024.avif 1024w" sizes="(max-width:1180px) 100vw, 44vw">
+                <source type="image/webp" srcset="desk-ray-640.webp 640w, desk-ray-1024.webp 1024w" sizes="(max-width:1180px) 100vw, 44vw">
+                <img src="desk-ray-1024.jpg" alt="A compass, a flask, a score and the drawing of a wing on one table." width="1536" height="1024" loading="lazy" decoding="async">
+              </picture>
+            </div></a>
+            <figcaption class="exhibit-caption"><span class="label">The shared universe</span><span class="label">Architecture · production art</span></figcaption>
+          </figure>
+          <div class="exhibit-body">
+            <p class="statement" data-chispa="read">Four children, four centuries.<span class="turn">What they share is a way of looking.</span></p>
+            <a class="handle" href="innovation.html" data-chispa-word="See">See the method</a>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ROOM 9 · INSTITUTIONAL LEGITIMACY — late afternoon ══════════ -->
+  <section class="lit light-afternoon" data-header="light" aria-labelledby="legit-title">
+    <div class="room shell">
+      <p class="eyebrow rise" id="legit-title">Institutional legitimacy</p>
+      <h2 class="statement measure rise" data-chispa="read">Why this house is qualified to do this work.</h2>
+      <div class="chronology">
+        <div class="era rise">
+          <div class="era-when">
+            <p class="era-name">Before AGS</p>
+            <p class="era-kind" data-kind="history">Verified history</p>
+          </div>
+          <div>
+            <p class="era-what">Two decades of playing for children, and years directing public conservatories.</p>
+            <p class="era-note">Concert halls, classrooms and institutions across Europe and Latin America. Not a plan to arrive here — but the road.</p>
+          </div>
+        </div>
+        <div class="era rise">
+          <div class="era-when">
+            <p class="era-name">The origin</p>
+            <p class="era-kind" data-kind="history">Verified history</p>
+          </div>
+          <div>
+            <p class="era-what">A theatre, a piano, and one question.</p>
+            <p class="era-note">Written for children who had never been inside a concert hall. It kept being performed, season after season.</p>
+          </div>
+        </div>
+        <div class="era rise">
+          <div class="era-when">
+            <p class="era-name">Today</p>
+            <p class="era-kind" data-kind="present">Present</p>
+          </div>
+          <div>
+            <p class="era-what">A creative constitution, a universe, and the first work.</p>
+            <p class="era-note">Thirteen chapters deciding what may belong to AGS — closed until the first work is finished.</p>
+          </div>
+        </div>
+        <div class="era rise">
+          <div class="era-when">
+            <p class="era-name">Ten years from now</p>
+            <p class="era-kind" data-kind="horizon">Horizon</p>
+          </div>
+          <div>
+            <p class="era-what">An institution working with schools, cities and studios in several languages.</p>
+            <p class="era-note">Intention, not forecast.</p>
+          </div>
+        </div>
+        <div class="era rise">
+          <div class="era-when">
+            <p class="era-name">A hundred years from now</p>
+            <p class="era-kind" data-kind="horizon">Legacy</p>
+          </div>
+          <div>
+            <p class="era-what">A method that no longer needs its founders.</p>
+            <p class="era-note">The only measure that counts as final.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ROOM 10 · THE INVITATION — warm theatrical light ════════════ -->
+  <section class="scene lit light-theatre" data-scene data-cue="breath" aria-labelledby="invite-title">
+    <span class="residue" style="--d:-18;left:-8%;top:6%;width:46%;opacity:.42" aria-hidden="true">
+      <img src="light-spiral-1280.webp" alt="" width="1280" height="853" loading="lazy" decoding="async">
+    </span>
+    <canvas class="motes" aria-hidden="true"></canvas>
+    <div class="room shell">
+      <p class="eyebrow rise" id="invite-title">An invitation</p>
+      <div class="invite">
+        <h2 class="declaration rise" data-chispa="read">The vision is defined. The constitution exists.<span class="turn">The work begins now.</span></h2>
+        <p class="lede rise">AGS will not be built alone.</p>
+        <p class="rise"><a class="contact" href="collaborate.html" data-chispa-word="Begin">Start the conversation</a></p>
+        <div class="guests rise">
+          <div>
+            <p class="guest-role">Educators &amp; institutions</p>
+            <p class="guest-note">Test it in a real classroom before you believe it.</p>
+          </div>
+          <div>
+            <p class="guest-role">Artists &amp; studios</p>
+            <p class="guest-note">We share a standard, and the responsibility that comes with it.</p>
+          </div>
+          <div>
+            <p class="guest-role">Researchers &amp; partners</p>
+            <p class="guest-note">The method is meant to be read, argued with, and used.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot" data-header="dark">
+  <div class="room-tight shell">
+    <p class="foot-mantra rise">We do not make content.<br>We make founding moments.</p>
+    <div class="foot-grid">
+      <div>
+        <p class="foot-head">The five worlds</p>
+        <ul class="foot-list">
+          <li><a class="foot-link" href="entertainment.html">Entertainment</a></li>
+          <li><a class="foot-link" href="education.html">Education</a></li>
+          <li><a class="foot-link" href="culture.html">Culture</a></li>
+          <li><a class="foot-link" href="innovation.html">Innovation</a></li>
+          <li><a class="foot-link" href="institution.html">Institution</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="foot-head">The house</p>
+        <ul class="foot-list">
+          <li><a class="foot-link" href="manifesto.html">Manifesto</a></li>
+          <li><a class="foot-link" href="institution.html#history">History</a></li>
+          <li><a class="foot-link" href="institution.html#governance">Governance</a></li>
+          <li><a class="foot-link" href="institution.html#leadership">Leadership</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="foot-head">Reach us</p>
+        <ul class="foot-list">
+          <li><a class="foot-link" href="collaborate.html">Work with AGS</a></li>
+          <li><a class="foot-link" href="mailto:info@agsproduction.fr">info@agsproduction.fr</a></li>
+          <li><a class="foot-link" href="institution.html#press">Press</a></li>
+          <li><a class="foot-link" href="institution.html#careers">Careers</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="foot-legal">
+      <span>AGS · a project of AGS Production · Paris, France</span>
+      <span><a href="legal.html">Legal notice</a></span>
+      <span><a href="legal.html#privacy">Privacy</a></span>
+      <span><a href="legal.html#terms">Terms of use</a></span>
+      <span><a href="legal.html#ip">Intellectual property</a></span>
+      <span>© 2026 AGS. All rights reserved.</span>
+    </p>
+  </div>
+</footer>
+
+<script src="ags.js" defer></script>
+</body>
+</html>
